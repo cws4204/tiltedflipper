@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tilted Flipper — Winnipeg Pinball Machine Buyers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Special+Elite&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --black:    #0d0a06;
+      --cream:    #f5eedc;
+      --gold:     #c9932a;
+      --red:      #b52a1c;
+      --amber:    #e8b84b;
+      --dim:      #7a6a50;
+      --light:    #fdf8ee;
+      --wpg-blue:      #1a3a5c;
+      --wpg-blue-mid:  #1f4d7a;
+      --wpg-blue-bright: #2e6da4;
+      --wpg-blue-glow: rgba(46,109,164,0.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--black);
+      color: var(--cream);
+      font-family: 'Libre Baskerville', Georgia, serif;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.35;
+    }
+
+    /* ── MARQUEE HEADER ── */
+    .marquee-strip {
+      background: var(--wpg-blue);
+      padding: 6px 0;
+      overflow: hidden;
+      white-space: nowrap;
+      border-bottom: 3px solid var(--gold);
+    }
+    .marquee-inner {
+      display: inline-block;
+      animation: scroll-left 28s linear infinite;
+      font-family: 'Special Elite', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      color: var(--amber);
+      text-transform: uppercase;
+    }
+    @keyframes scroll-left {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      padding: 1.1rem 2rem;
+      border-bottom: 1px solid #2a2318;
+      background: rgba(13,10,6,0.96);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav a {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--amber); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      text-align: center;
+      padding: 5rem 2rem 4rem;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 110%, rgba(201,147,42,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 30% 0%, var(--wpg-blue-glow) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 80% 10%, rgba(46,109,164,0.08) 0%, transparent 50%);
+      border-bottom: 2px solid #1e1912;
+    }
+
+    .hero-rule {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .hero-rule span { flex: 1; height: 1px; background: var(--gold); opacity: 0.4; }
+    .hero-rule em {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      font-style: normal;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(3rem, 9vw, 6.5rem);
+      font-weight: 900;
+      line-height: 0.92;
+      color: var(--cream);
+      text-shadow: 0 2px 40px rgba(201,147,42,0.25);
+      letter-spacing: -0.01em;
+    }
+    .hero h1 span { color: var(--gold); font-style: italic; }
+
+    .hero-sub {
+      margin-top: 1.4rem;
+      font-family: 'Special Elite', monospace;
+      font-size: 0.82rem;
+      letter-spacing: 0.22em;
+      color: var(--dim);
+      text-transform: uppercase;
+    }
+
+    .hero-tagline {
+      margin: 2rem auto 0;
+      max-width: 560px;
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: #c8b89a;
+      font-style: italic;
+    }
+
+    .cta-group {
+      margin-top: 2.8rem;
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.85rem 2.2rem;
+      border: 2px solid;
+      display: inline-block;
+      transition: background 0.2s, color 0.2s;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--gold);
+      color: var(--black);
+      border-color: var(--gold);
+    }
+    .btn-primary:hover { background: var(--amber); border-color: var(--amber); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--cream);
+      border-color: #3a3020;
+    }
+    .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── SECTION CHROME ── */
+    section { padding: 4.5rem 2rem; }
+
+    .section-label {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.6rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--cream);
+    }
+    .section-title em { font-style: italic; color: var(--gold); }
+
+    hr.divider {
+      border: none;
+      border-top: 1px solid #2a2318;
+      margin: 0;
+    }
+
+    /* ── WHY US ── */
+    #why {
+      background:
+        linear-gradient(180deg, #0d0a06 0%, #100e08 100%);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2.5rem;
+      margin-top: 3rem;
+    }
+    .why-card {
+      border: 1px solid #2a2318;
+      padding: 2rem 1.6rem;
+      position: relative;
+      transition: border-color 0.3s;
+    }
+    .why-card::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 20px;
+      width: 40px; height: 3px;
+      background: var(--wpg-blue-bright);
+    }
+    .why-card:hover { border-color: var(--wpg-blue-mid); }
+    .why-card .icon {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .why-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--cream);
+      margin-bottom: 0.6rem;
+    }
+    .why-card p {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--dim);
+    }
+
+    /* ── WHAT WE BUY ── */
+    #what {
+      background: #090806;
+      border-top: 1px solid #1e1912;
+      border-bottom: 1px solid #1e1912;
+    }
+    .what-inner { max-width: 1100px; margin: 0 auto; }
+
+    .conditions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2.8rem;
+    }
+    .condition-card {
+      background: #0f0d09;
+      border: 1px solid #231f16;
+      padding: 1.8rem 1.6rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .condition-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--wpg-blue-bright), var(--gold));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s;
+    }
+    .condition-card:hover::after { transform: scaleX(1); }
+    .condition-tag {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--wpg-blue-bright);
+      margin-bottom: 0.5rem;
+    }
+    .condition-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      color: var(--cream);
+      margin-bottom: 0.5rem;
+    }
+    .condition-card p {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--dim);
+    }
+
+    /* ── BRANDS ── */
+    #brands { max-width: 1100px; margin: 0 auto; }
+    .brands-note {
+      margin-top: 1rem;
+      font-size: 0.88rem;
+      color: var(--dim);
+      font-style: italic;
+    }
+    .brand-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-top: 2.2rem;
+    }
+    .brand-pill {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.5rem 1.1rem;
+      border: 1px solid #2a2318;
+      color: var(--dim);
+      background: #0f0d09;
+      transition: all 0.2s;
+    }
+    .brand-pill:hover { border-color: var(--gold); color: var(--amber); }
+    .brand-pill.highlight { border-color: #3a3020; color: var(--cream); }
+
+    /* ── HOW IT WORKS ── */
+    #how {
+      background: #080705;
+      border-top: 1px solid #1e1912;
+    }
+    .how-inner { max-width: 900px; margin: 0 auto; }
+    .steps {
+      counter-reset: step;
+      margin-top: 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 1.5rem;
+      padding: 2rem 0;
+      border-bottom: 1px solid #1a1710;
+      position: relative;
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      font-weight: 900;
+      color: #2a2318;
+      line-height: 1;
+      user-select: none;
+    }
+    .step-content h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--cream);
+      margin-bottom: 0.4rem;
+    }
+    .step-content p {
+      font-size: 0.88rem;
+      line-height: 1.75;
+      color: var(--dim);
+    }
+
+    /* ── QUOTE BANNER ── */
+    .quote-banner {
+      background: var(--wpg-blue);
+      padding: 3.5rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border-top: 3px solid var(--gold);
+      border-bottom: 3px solid var(--gold);
+    }
+    .quote-banner::before {
+      content: '★ ★ ★';
+      font-size: 0.7rem;
+      letter-spacing: 0.5em;
+      color: rgba(255,255,255,0.3);
+      display: block;
+      margin-bottom: 1.2rem;
+    }
+    .quote-banner blockquote {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+      font-style: italic;
+      font-weight: 700;
+      color: var(--cream);
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.4;
+    }
+    .quote-banner cite {
+      display: block;
+      margin-top: 1rem;
+      font-family: 'Special Elite', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: rgba(245,238,220,0.55);
+      font-style: normal;
+      text-transform: uppercase;
+    }
+
+    /* ── CONTACT ── */
+    #contact {
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 100%, rgba(201,147,42,0.08) 0%, transparent 70%);
+    }
+    .contact-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .contact-inner .section-title { margin-bottom: 0.6rem; }
+    .contact-intro {
+      font-size: 0.95rem;
+      color: var(--dim);
+      line-height: 1.8;
+      margin-top: 1rem;
+      font-style: italic;
+    }
+
+    .contact-form {
+      margin-top: 2.8rem;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+    @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } }
+
+    .field label {
+      display: block;
+      font-family: 'Special Elite', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 0.4rem;
+    }
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      background: #0f0d09;
+      border: 1px solid #2a2318;
+      color: var(--cream);
+      font-family: 'Libre Baskerville', serif;
+      font-size: 0.9rem;
+      padding: 0.75rem 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+    }
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus { border-color: var(--gold); }
+    .field textarea { height: 120px; resize: vertical; }
+    .field select { cursor: pointer; }
+
+    .form-note {
+      font-size: 0.78rem;
+      color: var(--dim);
+      font-style: italic;
+      text-align: center;
+    }
+
+    .submit-btn {
+      align-self: center;
+      font-family: 'Special Elite', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      padding: 1rem 3rem;
+      background: var(--wpg-blue-mid);
+      color: var(--cream);
+      border: 2px solid var(--wpg-blue-bright);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .submit-btn:hover { background: var(--wpg-blue-bright); border-color: var(--gold); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #060504;
+      border-top: 1px solid #1a1710;
+      padding: 2.5rem 2rem;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: -0.01em;
+    }
+    .footer-logo span { font-style: italic; }
+    .footer-tagline {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-top: 0.4rem;
+    }
+    .footer-copy {
+      margin-top: 1.6rem;
+      font-size: 0.75rem;
+      color: #3a3020;
+      font-style: italic;
+    }
+
+    /* ── ANIMATIONS ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── PINBALL DECORATION ── */
+    .ball-decoration {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, var(--amber), var(--gold) 60%, #7a5010);
+      box-shadow: 0 2px 8px rgba(201,147,42,0.5);
+      vertical-align: middle;
+      margin: 0 0.4rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SCROLLING MARQUEE -->
+  <div class="marquee-strip" role="marquee" aria-label="We buy pinball machines">
+    <div class="marquee-inner">
+      &nbsp;&nbsp;★ WINNIPEG & MANITOBA PINBALL BUYERS &nbsp;&nbsp;•&nbsp;&nbsp; DEAD FLIPPERS, NO PROBLEM &nbsp;&nbsp;•&nbsp;&nbsp; FAST CASH OFFERS &nbsp;&nbsp;•&nbsp;&nbsp; ALL ERAS WANTED &nbsp;&nbsp;•&nbsp;&nbsp; FREE PICKUP — WINNIPEG TO BRANDON &nbsp;&nbsp;•&nbsp;&nbsp; ELECTROMECHANICAL TO SOLID STATE &nbsp;&nbsp;•&nbsp;&nbsp; FAIR PRICES, NO GAMES &nbsp;&nbsp;•&nbsp;&nbsp; ★ WINNIPEG & MANITOBA PINBALL BUYERS &nbsp;&nbsp;•&nbsp;&nbsp; DEAD FLIPPERS, NO PROBLEM &nbsp;&nbsp;•&nbsp;&nbsp; FAST CASH OFFERS &nbsp;&nbsp;•&nbsp;&nbsp; ALL ERAS WANTED &nbsp;&nbsp;•&nbsp;&nbsp; FREE PICKUP — WINNIPEG TO BRANDON &nbsp;&nbsp;•&nbsp;&nbsp; ELECTROMECHANICAL TO SOLID STATE &nbsp;&nbsp;•&nbsp;&nbsp; FAIR PRICES, NO GAMES &nbsp;&nbsp;•&nbsp;&nbsp;
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#why">Why Us</a>
+    <a href="#what">What We Buy</a>
+    <a href="#how">How It Works</a>
+    <a href="#brands">Brands</a>
+    <a href="#area">Service Area</a>
+    <a href="#contact">Get a Quote</a>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-rule">
+      <span></span>
+      <em>Serving Winnipeg & Manitoba</em>
+      <span></span>
+    </div>
+    <h1>Tilted<br><span>Flipper</span></h1>
+    <p class="hero-sub">Winnipeg's Pinball Machine Buyers &nbsp;<span class="ball-decoration"></span>&nbsp; We Come to You</p>
+    <p class="hero-tagline">
+      Got an old machine collecting dust in your Winnipeg basement or Manitoba garage?
+      Stuck drain? Won't boot? Dead solenoids? We buy pinball machines anywhere in Manitoba — any condition.
+    </p>
+    <div class="cta-group">
+      <a href="#contact" class="btn btn-primary">Get a Free Quote</a>
+      <a href="#what" class="btn btn-secondary">What We Accept</a>
+    </div>
+  </header>
+
+  <hr class="divider">
+
+  <!-- WHY US -->
+  <section id="why">
+    <div class="section-label">Why Tilted Flipper</div>
+    <div class="section-title">We know what<br><em>others won't touch.</em></div>
+    <div class="why-grid">
+      <div class="why-card fade-up">
+        <span class="icon">⚡</span>
+        <h3>Fast Cash Offers</h3>
+        <p>Send us a few photos and get a real offer within 24 hours. No lowball games, no wasted trips.</p>
+      </div>
+      <div class="why-card fade-up" style="transition-delay:0.1s">
+        <span class="icon">🚚</span>
+        <h3>Free Pickup</h3>
+        <p>We haul it ourselves across Winnipeg and Manitoba. No need to disassemble or rent a truck — we handle all the heavy lifting.</p>
+      </div>
+      <div class="why-card fade-up" style="transition-delay:0.2s">
+        <span class="icon">🔧</span>
+        <h3>Any Condition Welcome</h3>
+        <p>Missing backglass, dead playfield, rotted cabinet — we've bought worse. Condition is not a dealbreaker.</p>
+      </div>
+      <div class="why-card fade-up" style="transition-delay:0.3s">
+        <span class="icon">🏆</span>
+        <h3>Honest Appraisals</h3>
+        <p>We explain what your machine is worth and why. No mystery, no bait-and-switch at the door.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- WHAT WE BUY -->
+  <section id="what">
+    <div class="what-inner">
+      <div class="section-label">What We Accept</div>
+      <div class="section-title">If it once had<br><em>flippers, we want it.</em></div>
+      <div class="conditions-grid">
+        <div class="condition-card fade-up">
+          <div class="condition-tag">Condition</div>
+          <h3>Won't Power On</h3>
+          <p>Blown fuses, dead power supplies, shorted boards — these are problems we fix, not reasons to walk away.</p>
+        </div>
+        <div class="condition-card fade-up" style="transition-delay:0.1s">
+          <div class="condition-tag">Condition</div>
+          <h3>Stuck or Broken Flippers</h3>
+          <p>Worn coils, cracked plastic, jammed mechanisms. Your frustration is our starting point.</p>
+        </div>
+        <div class="condition-card fade-up" style="transition-delay:0.2s">
+          <div class="condition-tag">Condition</div>
+          <h3>Missing or Damaged Parts</h3>
+          <p>No legs, missing ramps, smashed backglass, gutted playfield. Incomplete is fine.</p>
+        </div>
+        <div class="condition-card fade-up" style="transition-delay:0.3s">
+          <div class="condition-tag">Condition</div>
+          <h3>Water or Smoke Damage</h3>
+          <p>Basement floods and barn finds are our specialty. We've rescued machines most would scrap.</p>
+        </div>
+        <div class="condition-card fade-up" style="transition-delay:0.4s">
+          <div class="condition-tag">Condition</div>
+          <h3>Plays Incorrectly</h3>
+          <p>Erratic scoring, stuck ball, ghost credits, display glitches — we diagnose so you don't have to.</p>
+        </div>
+        <div class="condition-card fade-up" style="transition-delay:0.5s">
+          <div class="condition-tag">Condition</div>
+          <h3>Electromechanical (EM)</h3>
+          <p>Pre-solid-state machines from the 40s–70s. Relay logic, score reels, and all the vintage charm.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- BRANDS -->
+  <section id="brands">
+    <div class="section-label">Manufacturers</div>
+    <div class="section-title">Every <em>era, every maker.</em></div>
+    <p class="brands-note">We buy from all manufacturers — this is just a sampling of names we see often.</p>
+    <div class="brand-list">
+      <div class="brand-pill highlight">Williams</div>
+      <div class="brand-pill highlight">Bally</div>
+      <div class="brand-pill highlight">Stern</div>
+      <div class="brand-pill highlight">Gottlieb</div>
+      <div class="brand-pill">Data East</div>
+      <div class="brand-pill">Sega</div>
+      <div class="brand-pill">Midway</div>
+      <div class="brand-pill">Chicago Coin</div>
+      <div class="brand-pill">Rock-Ola</div>
+      <div class="brand-pill">United</div>
+      <div class="brand-pill">Zaccaria</div>
+      <div class="brand-pill">Premier</div>
+      <div class="brand-pill">Capcom</div>
+      <div class="brand-pill">Alvin G.</div>
+      <div class="brand-pill">American Pinball</div>
+      <div class="brand-pill">Jersey Jack</div>
+      <div class="brand-pill">Spooky</div>
+      <div class="brand-pill">…and more</div>
+    </div>
+  </section>
+
+  <!-- QUOTE BANNER -->
+  <div class="quote-banner">
+    <blockquote>
+      "That machine sat in my garage for eleven years. They picked it up same week and paid me more than I expected."
+    </blockquote>
+    <cite>— A Seller from Winnipeg, MB</cite>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="how-inner">
+      <div class="section-label">The Process</div>
+      <div class="section-title">Simple as a <em>drain shot.</em></div>
+      <div class="steps">
+        <div class="step fade-up">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <h3>Send Us Photos & Details</h3>
+            <p>Use the form below. A few clear shots of the cabinet, playfield, and backglass plus the machine name and any known issues are all we need to get started.</p>
+          </div>
+        </div>
+        <div class="step fade-up" style="transition-delay:0.1s">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <h3>Receive Your Offer</h3>
+            <p>We'll respond within 24 hours with a fair cash offer based on what you've shared. If we need more info, we'll ask — no pressure, no obligation.</p>
+          </div>
+        </div>
+        <div class="step fade-up" style="transition-delay:0.2s">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <h3>We Schedule Pickup</h3>
+            <p>Accept the offer and we'll arrange a time that works for you. We bring the truck and the muscle — you don't lift a finger.</p>
+          </div>
+        </div>
+        <div class="step fade-up" style="transition-delay:0.3s">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <h3>Get Paid on the Spot</h3>
+            <p>Cash or e-transfer the moment we load the machine. No waiting, no invoices, no runaround.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- SERVICE AREA -->
+  <section id="area" style="background:#090806; border-top:1px solid #1a1710; border-bottom:1px solid #1a1710; padding:3rem 2rem;">
+    <div style="max-width:900px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:center;">
+      <div>
+        <div class="section-label">Service Area</div>
+        <div class="section-title" style="font-size:clamp(1.5rem,3vw,2.2rem);">Winnipeg &amp; all of <em>Manitoba.</em></div>
+        <p style="margin-top:1rem; font-size:0.9rem; line-height:1.8; color:var(--dim); font-style:italic;">
+          Based in Winnipeg, we travel across the province. Whether it's a machine tucked in a Transcona basement, a rec room in Brandon, or a barn find near Steinbach — we'll come to you.
+        </p>
+      </div>
+      <div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.6rem;">
+          <span class="brand-pill highlight" style="border-color:var(--wpg-blue-mid); color:var(--cream);">Winnipeg</span>
+          <span class="brand-pill" style="border-color:#1a2a3a;">Brandon</span>
+          <span class="brand-pill" style="border-color:#1a2a3a;">Steinbach</span>
+          <span class="brand-pill" style="border-color:#1a2a3a;">Selkirk</span>
+          <span class="brand-pill" style="border-color:#1a2a3a;">Portage la Prairie</span>
+          <span class="brand-pill" style="border-color:#1a2a3a;">Morden</span>
+          <span class="brand-pill" style="border-color:#1a2a3a;">Winkler</span>
+          <span class="brand-pill" style="border-color:#1a2a3a;">Dauphin</span>
+          <span class="brand-pill" style="border-color:#1a2a3a;">Thompson</span>
+          <span class="brand-pill" style="border-color:#1a2a3a;">The Pas</span>
+          <span class="brand-pill" style="border-color:#1a2a3a; color:var(--gold);">…anywhere in MB</span>
+        </div>
+        <p style="margin-top:1rem; font-size:0.78rem; color:var(--dim); font-family:'Special Elite',monospace; letter-spacing:0.1em;">
+          ★ Out-of-province sellers welcome too — contact us to discuss shipping.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+  <section id="contact">
+    <div class="contact-inner">
+      <div class="section-label">Get a Free Quote</div>
+      <div class="section-title">Tell us about<br><em>your machine.</em></div>
+      <p class="contact-intro">
+        No obligation. No hard sell. Just an honest offer from people who genuinely love these machines.
+      </p>
+
+      <div class="contact-form">
+        <div class="form-row">
+          <div class="field">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" placeholder="Jane Smith" />
+          </div>
+          <div class="field">
+            <label for="phone">Phone / Email</label>
+            <input type="text" id="phone" placeholder="How to reach you" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="machine">Machine Name</label>
+            <input type="text" id="machine" placeholder="e.g. Williams Addams Family" />
+          </div>
+          <div class="field">
+            <label for="year">Approximate Year</label>
+            <input type="text" id="year" placeholder="e.g. 1992 or unknown" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="condition">Primary Condition Issue</label>
+          <select id="condition">
+            <option value="" disabled selected>Select the main problem…</option>
+            <option>Won't power on</option>
+            <option>Flippers not working</option>
+            <option>Plays incorrectly / erratically</option>
+            <option>Missing parts or incomplete</option>
+            <option>Physical / cabinet damage</option>
+            <option>Water or smoke damage</option>
+            <option>Multiple issues / not sure</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="notes">Additional Notes</label>
+          <textarea id="notes" placeholder="Anything else we should know — storage location, how long you've had it, what you know about it…"></textarea>
+        </div>
+        <p class="form-note">Photos help us give a better offer. Email them to <strong style="color:var(--cream)">hello@tiltedflipper.com</strong> after submitting.</p>
+        <button class="submit-btn" onclick="handleSubmit()">Send My Quote Request</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Tilted <span>Flipper</span></div>
+    <div class="footer-tagline"><span class="ball-decoration"></span> Winnipeg &amp; Manitoba Pinball Machine Buyers <span class="ball-decoration"></span></div>
+    <p style="margin-top:0.6rem; font-family:'Special Elite',monospace; font-size:0.65rem; letter-spacing:0.2em; color:var(--wpg-blue-bright);">WINNIPEG, MB &nbsp;·&nbsp; SERVING ALL OF MANITOBA</p>
+    <p class="footer-copy">© 2025 Tilted Flipper &nbsp;·&nbsp; We're not liable for your nostalgia.</p>
+  </footer>
+
+  <script>
+    // Scroll-triggered fade-up
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // Simple form handler
+    function handleSubmit() {
+      const name = document.getElementById('name').value.trim();
+      const contact = document.getElementById('phone').value.trim();
+      const machine = document.getElementById('machine').value.trim();
+
+      if (!name || !contact) {
+        alert('Please enter your name and contact info so we can reach you.');
+        return;
+      }
+
+      // In production: replace with a real form backend (Formspree, Netlify Forms, etc.)
+      alert('Thanks, ' + (name || 'friend') + '! Your quote request has been received. We\'ll be in touch within 24 hours.');
+    }
+  </script>
+
+</body>
+</html>
